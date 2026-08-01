@@ -8,7 +8,7 @@
 :root{
   --ink:#16202B; --ink2:#33414F; --muted:#6B7A88; --line:#E1E7ED;
   --bg:#EEF2F6; --surface:#FFFFFF; --surface2:#F7F9FB;
-  --gab:#2563A6; --mar:#8E3FB8;
+  --gab:#2563A6; --mar:#f384dc;
   --pos:#1E8A5B; --neg:#C0392B; --teal:#0E7C7B; --gold:#B7791F;
   --radius:14px; --shadow:0 1px 2px rgba(22,32,43,.06),0 8px 24px rgba(22,32,43,.06);
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
@@ -61,7 +61,7 @@ button.btn.sm{padding:5px 9px;font-size:12px;border-radius:8px}
 .pbody{padding:18px 20px}
 .prow{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px dashed var(--line)}
 .prow:last-child{border-bottom:0}.prow .lbl{color:var(--ink2);font-size:14px}.prow .val{font-size:17px;font-weight:600}
-.pos{color:var(--pos)}.neg{color:var(--neg)}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.gold{color:var(--gold)}
 .savebar{height:8px;border-radius:6px;background:var(--surface2);margin-top:4px;overflow:hidden}
 .savebar>i{display:block;height:100%;border-radius:6px}
 .chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-top:18px}
@@ -90,7 +90,8 @@ tbody tr:hover{background:var(--surface2)}td.num,th.num{text-align:right}
 .note.warn{background:#FCEBE9;border-color:#F1C9C4;color:#8A2A20}.note b{font-weight:700}
 .cdb-in{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:6px}
 .cdb-res{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
-.svgchart{width:100%;height:auto;display:block}
+.svgchart{width:100%;max-width:680px;height:auto;display:block}
+#v-cdb .chart-card{max-width:720px}
 .axis{stroke:var(--line);stroke-width:1}.gridline{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
 .tick{fill:var(--muted);font-size:11px;font-family:var(--sans)}
 .blabel{fill:var(--ink2);font-size:12px;font-family:var(--sans)}
@@ -162,11 +163,14 @@ tbody tr:hover{background:var(--surface2)}td.num,th.num{text-align:right}
   <main class="main">
     <section class="view on" id="v-painel">
       <div class="head"><div><h2>Painel</h2><p>Visão consolidada e por pessoa. Escolha o período abaixo.</p></div>
-        <div class="toolbar" style="margin:0"><select id="pMes"></select></div></div>
+        <div class="toolbar" style="margin:0">
+          <div class="seg" id="pnPessoaSeg"><button data-p="Ambos" class="on">Ambos</button><button data-p="Gabriel">Gabriel</button><button data-p="Mariana">Mariana</button></div>
+          <select id="pMes"></select>
+        </div></div>
       <div class="combined" id="combined"></div>
       <div class="duo">
-        <div class="person gab"><header><div><h3>Gabriel</h3></div><span class="tag">Pessoal</span></header><div class="pbody" id="pGab"></div></div>
-        <div class="person mar"><header><div><h3>Mariana</h3></div><span class="tag">Casa</span></header><div class="pbody" id="pMar"></div></div>
+        <div class="person gab"><header><div><h3>Gabriel</h3></div><span class="tag">Marido</span></header><div class="pbody" id="pGab"></div></div>
+        <div class="person mar"><header><div><h3>Mariana</h3></div><span class="tag">Esposa</span></header><div class="pbody" id="pMar"></div></div>
       </div>
       <div class="grid2">
         <div class="chart-card"><h4>Onde vai o dinheiro — por categoria</h4><div id="chCat"></div></div>
@@ -198,18 +202,21 @@ tbody tr:hover{background:var(--surface2)}td.num,th.num{text-align:right}
     <section class="view" id="v-parc">
       <div class="head"><div><h2>Parcelamentos</h2><p>Compromissos parcelados em aberto.</p></div></div>
       <div id="parcWarn"></div>
+      <div class="combined" id="parcStats" style="grid-template-columns:repeat(3,1fr)"></div>
       <div class="formcard"><div class="formgrid" style="grid-template-columns:repeat(4,1fr)">
         <div class="field"><label>Descrição</label><input id="pcDesc"></div>
         <div class="field"><label>Pessoa</label><select id="pcPessoa"><option>Gabriel</option><option>Mariana</option><option>Casa</option></select></div>
+        <div class="field"><label>Encargo (dono)</label><select id="pcEncargo"></select></div>
         <div class="field"><label>Valor total (R$)</label><input type="number" id="pcTot" step="0.01"></div>
-        <div class="field"><label>Nº parcelas</label><input type="number" id="pcQtd" step="1"></div>
-        <div class="field"><label>Faltam</label><input id="pcFalta" placeholder="ex.: 04/12"></div>
-        <div class="field"><label>Mês início</label><input type="date" id="pcIni"></div>
-        <div class="field"><label>Mês fim</label><input type="date" id="pcFim"></div>
+        <div class="field"><label>Nº parcelas (total)</label><input type="number" id="pcQtd" step="1" min="1"></div>
+        <div class="field"><label>Mês início</label><input type="month" id="pcIni"></div>
+        <div class="field"><label>Mês fim (auto)</label><input type="month" id="pcFim" disabled></div>
       </div><div class="toolbar" style="margin:14px 0 0"><button class="btn primary" id="pcAdd">Adicionar</button><button class="btn ghost" id="pcCancel" style="display:none">Cancelar</button></div></div>
-      <div class="toolbar"><button class="btn" id="pcDelSel" style="display:none">Excluir selecionados</button></div>
-      <div class="tablewrap"><table id="tParc"><thead><tr><th><input type="checkbox" id="chkAllParc"></th><th>Pessoa</th><th>Descrição</th><th class="num">Valor total</th><th class="num">Parcela</th><th class="num">Nº</th><th>Faltam</th><th class="hide-sm">Início</th><th class="hide-sm">Fim</th><th></th></tr></thead><tbody></tbody>
-        <tfoot><tr><td colspan="4" style="font-weight:600">Total de parcela por mês</td><td class="num money" id="parcTotal" style="font-weight:700;color:var(--neg)"></td><td colspan="5"></td></tr></tfoot></table></div>
+      <div class="toolbar">
+        <select id="pcEncargoSel"></select>
+        <button class="btn" id="pcDelSel" style="display:none">Excluir selecionados</button>
+      </div>
+      <div class="tablewrap"><table id="tParc"><thead><tr><th><input type="checkbox" id="chkAllParc"></th><th>Descrição</th><th>Pessoa</th><th>Encargo</th><th class="num">Valor total</th><th class="num">Parcela</th><th class="num">Nº total</th><th class="num">Restantes</th><th class="hide-sm">Início</th><th class="hide-sm">Fim</th><th></th></tr></thead><tbody></tbody></table></div>
     </section>
     <section class="view" id="v-inv">
       <div class="head"><div><h2>Investimentos — Casa &amp; Individual</h2><p>Itens comprados e a comprar. O financiamento é exibido à parte por distorcer o total.</p></div></div>
@@ -276,7 +283,7 @@ tbody tr:hover{background:var(--surface2)}td.num,th.num{text-align:right}
 <script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc,
   onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, writeBatch }
@@ -315,7 +322,9 @@ async function boot(){
   const app=initializeApp(firebaseConfig);
   const auth=getAuth(app);
   fdb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
-  await setPersistence(auth,browserLocalPersistence).catch(()=>{});
+  /* Sessão vale por aba: fechar a aba/navegador desloga; um F5 mantém logado
+     (sessionStorage sobrevive a reload, mas some quando a aba é encerrada). */
+  await setPersistence(auth,browserSessionPersistence).catch(()=>{});
   window.addEventListener("online",()=>$("offbar").classList.remove("on"));
   window.addEventListener("offline",()=>$("offbar").classList.add("on"));
   let idleTimer=null;
@@ -373,12 +382,12 @@ function totals(p,mes){let ent=0,desp=0;state.lancamentos.forEach(l=>{if(p&&l.pe
 function porCategoria(p,mes){const m={};state.lancamentos.forEach(l=>{if(l.tipo!=="despesa")return;if(p&&l.pessoa!==p)return;if(mes&&mkey(l.data)!==mes)return;m[l.categoria]=(m[l.categoria]||0)+ +l.valor;});return Object.entries(m).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value);}
 function saldoPorMes(p){return mesesDisponiveis().map(m=>({mes:m,saldo:totals(p,m).saldo}));}
 function barsH(el,data){if(!data.length){el.innerHTML='<div class="empty">Sem dados no período.</div>';return;}
-  const max=Math.max(...data.map(d=>d.value),1),rowH=34,w=560,padL=132,padR=90,top=6,h=top+data.length*rowH+6;
+  const total=data.reduce((a,d)=>a+d.value,0),max=Math.max(...data.map(d=>d.value),1),rowH=34,w=560,padL=132,padR=90,top=6,h=top+data.length*rowH+6;
   let s=`<svg viewBox="0 0 ${w} ${h}" class="svgchart" preserveAspectRatio="xMidYMid meet">`;
-  data.forEach((d,i)=>{const y=top+i*rowH,bw=(w-padL-padR)*(d.value/max);
-    s+=`<text x="${padL-8}" y="${y+rowH/2}" text-anchor="end" dominant-baseline="middle" class="blabel">${esc(d.label)}</text>`;
-    s+=`<rect x="${padL}" y="${y+7}" width="${Math.max(bw,2)}" height="${rowH-16}" rx="4" fill="var(--teal)"/>`;
-    s+=`<text x="${padL+bw+6}" y="${y+rowH/2}" dominant-baseline="middle" class="bval">${brl(d.value)}</text>`;});
+  data.forEach((d,i)=>{const y=top+i*rowH,bw=(w-padL-padR)*(d.value/max),tip=`${d.label}: ${brl(d.value)} (${pct(total?d.value/total:0)} do total)`;
+    s+=`<text x="${padL-8}" y="${y+rowH/2}" text-anchor="end" dominant-baseline="middle" class="blabel">${esc(d.label)}<title>${esc(tip)}</title></text>`;
+    s+=`<rect x="${padL}" y="${y+7}" width="${Math.max(bw,2)}" height="${rowH-16}" rx="4" fill="var(--teal)"><title>${esc(tip)}</title></rect>`;
+    s+=`<text x="${padL+bw+6}" y="${y+rowH/2}" dominant-baseline="middle" class="bval">${brl(d.value)}<title>${esc(tip)}</title></text>`;});
   el.innerHTML=s+"</svg>";}
 function lineMes(el,series){const ms=mesesDisponiveis();if(!ms.length){el.innerHTML='<div class="empty">Sem dados.</div>';return;}
   const w=560,h=230,padL=64,padR=16,padT=14,padB=34,all=series.flatMap(s=>s.points.map(p=>p.v));
@@ -389,14 +398,19 @@ function lineMes(el,series){const ms=mesesDisponiveis();if(!ms.length){el.innerH
   if(mn<0){const y0=Y(0);s+=`<line x1="${padL}" y1="${y0}" x2="${w-padR}" y2="${y0}" class="axis"/>`;}
   ms.forEach((m,i)=>{const[,mo]=m.split("-");s+=`<text x="${X(i)}" y="${h-12}" text-anchor="middle" class="tick">${MES[+mo-1]}</text>`;});
   series.forEach(se=>{s+=`<path d="${se.points.map((p,i)=>`${i?"L":"M"}${X(i)},${Y(p.v)}`).join(" ")}" fill="none" stroke="${se.color}" stroke-width="2.5" stroke-linejoin="round"/>`;
-    se.points.forEach((p,i)=>s+=`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3.2" fill="${se.color}"/>`);});
+    se.points.forEach((p,i)=>{const[y,mo]=(p.mes||ms[i]).split("-"),tip=`${se.label?se.label+" — ":""}${MES[+mo-1]}/${y}: ${brl(p.v)}`;
+      s+=`<circle cx="${X(i)}" cy="${Y(p.v)}" r="7" fill="transparent" pointer-events="all"><title>${esc(tip)}</title></circle><circle cx="${X(i)}" cy="${Y(p.v)}" r="3.2" fill="${se.color}" pointer-events="none"/>`;});});
   el.innerHTML=s+"</svg>";}
 function renderPainel(){fillMesSelect($("pMes"));const mes=$("pMes").value,c=totals(null,mes),g=totals("Gabriel",mes),m=totals("Mariana",mes);
   $("combined").innerHTML=[["Entradas (total)",brl(c.ent),"pos"],["Despesas (total)",brl(c.desp),"neg"],["Saldo (total)",brl(c.saldo),c.saldo>=0?"pos":"neg"],["Taxa de poupança",pct(c.taxa),""]].map(([k,v,cl])=>`<div class="stat"><div class="k">${k}</div><div class="v money ${cl}">${v}</div></div>`).join("");
   const pb=(t,cor)=>`<div class="prow"><span class="lbl">Entradas</span><span class="val money pos">${brl(t.ent)}</span></div><div class="prow"><span class="lbl">Despesas</span><span class="val money neg">${brl(t.desp)}</span></div><div class="prow"><span class="lbl">Saldo</span><span class="val money ${t.saldo>=0?'pos':'neg'}">${brl(t.saldo)}</span></div><div class="prow"><span class="lbl">Taxa de poupança</span><span class="val money">${pct(t.taxa)}</span></div><div class="savebar"><i style="width:${Math.max(0,Math.min(100,t.taxa*100))}%;background:${cor}"></i></div>`;
   $("pGab").innerHTML=pb(g,"var(--gab)");$("pMar").innerHTML=pb(m,"var(--mar)");
-  barsH($("chCat"),porCategoria(null,mes));
-  lineMes($("chMes"),[{color:"var(--gab)",points:saldoPorMes("Gabriel").map(x=>({v:x.saldo}))},{color:"var(--mar)",points:saldoPorMes("Mariana").map(x=>({v:x.saldo}))}]);}
+  const pf=document.querySelector("#pnPessoaSeg .on")?.dataset.p||"Ambos",chartPerson=pf==="Ambos"?null:pf;
+  barsH($("chCat"),porCategoria(chartPerson,mes));
+  lineMes($("chMes"),chartPerson
+    ?[{color:chartPerson==="Gabriel"?"var(--gab)":"var(--mar)",label:chartPerson,points:saldoPorMes(chartPerson).map(x=>({v:x.saldo,mes:x.mes}))}]
+    :[{color:"var(--gab)",label:"Gabriel",points:saldoPorMes("Gabriel").map(x=>({v:x.saldo,mes:x.mes}))},{color:"var(--mar)",label:"Mariana",points:saldoPorMes("Mariana").map(x=>({v:x.saldo,mes:x.mes}))}]);}
+document.querySelectorAll("#pnPessoaSeg button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#pnPessoaSeg button").forEach(x=>x.className="");b.className="on"+(b.dataset.p==="Gabriel"?" gab":b.dataset.p==="Mariana"?" mar":"");renderPainel();});
 let selLanc=new Set(),selParc=new Set(),selInv=new Set();
 function bulkBtn(id,sel){const b=$(id);if(!b)return;b.style.display=sel.size?"":"none";b.textContent=`Excluir selecionados (${sel.size})`;}
 $("lDelSel").onclick=async()=>{if(!selLanc.size)return;if(!confirm(`Excluir ${selLanc.size} lançamento(s)?`))return;await Promise.all([...selLanc].map(id=>delDB("lancamentos",id)));selLanc.clear();};
@@ -430,24 +444,47 @@ $("fCancel").onclick=resetForm;
 document.querySelectorAll("#lPessoaSeg button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#lPessoaSeg button").forEach(x=>x.className="");b.className="on"+(b.dataset.p==="Gabriel"?" gab":b.dataset.p==="Mariana"?" mar":"");renderLanc();});
 $("lMes").onchange=renderLanc;$("lCat").onchange=renderLanc;$("pMes").onchange=renderPainel;
 let pcEdit=null;
-function renderParc(){const tb=document.querySelector("#tParc tbody");let warn="";
-  tb.innerHTML=state.parcelamentos.length?state.parcelamentos.map(p=>{const parc=p.qtdParcelas?p.valorTotal/p.qtdParcelas:0,bad=p.mesInicio&&p.mesFim&&p.mesFim<p.mesInicio;
+const ENCARGOS_BASE=["Cartão Zuleica Dia 08","Cartão Zuleica Dia 15","Cartão Zuleica Dia 25","Cartão Gabriel Dia 08"];
+function encargosDisponiveis(){const set=new Set(ENCARGOS_BASE);state.parcelamentos.forEach(p=>{if(p.encargo)set.add(p.encargo);});return[...set].sort();}
+function fillEncargoSelect(sel,todos){const cur=sel.value;sel.innerHTML=(todos?'<option value="">Todos os encargos</option>':'<option value="">Selecione…</option>')+encargosDisponiveis().map(e=>`<option>${esc(e)}</option>`).join("");
+  if([...sel.options].some(o=>o.value===cur))sel.value=cur;}
+function nowKey(){return new Date().toISOString().slice(0,7);}
+function monthsBetween(aKey,bKey){const[ay,am]=aKey.split("-").map(Number),[by,bm]=bKey.split("-").map(Number);return(by-ay)*12+(bm-am);}
+function addMonthsKey(key,n){const[y,m]=key.split("-").map(Number),d=new Date(y,m-1+n,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");}
+function mesFimCalc(mesInicio,qtd){return mesInicio&&qtd?addMonthsKey(mesInicio,qtd):null;}
+function parcelasRestantes(p){if(!p.mesInicio||!p.qtdParcelas)return p.qtdParcelas||0;
+  const elapsed=Math.max(0,monthsBetween(p.mesInicio,nowKey()));return Math.max(0,Math.min(p.qtdParcelas,p.qtdParcelas-elapsed));}
+function updatePcFimPreview(){pcFim.value=mesFimCalc(pcIni.value,parseInt(pcQtd.value)||0)||"";}
+pcIni.addEventListener("input",updatePcFimPreview);pcQtd.addEventListener("input",updatePcFimPreview);
+function renderParc(){fillEncargoSelect($("pcEncargo"),false);fillEncargoSelect($("pcEncargoSel"),true);
+  const tb=document.querySelector("#tParc tbody");let warn="";
+  const filtro=$("pcEncargoSel").value;
+  const all=state.parcelamentos.map(p=>{const mesFim=mesFimCalc(p.mesInicio,p.qtdParcelas)||p.mesFim||null,restantes=parcelasRestantes(p),parc=p.qtdParcelas?p.valorTotal/p.qtdParcelas:0;
+    return{...p,mesFim,restantes,parc};});
+  const rows=all.filter(p=>!filtro||p.encargo===filtro).sort((a,b)=>(a.encargo||"").localeCompare(b.encargo||"")||(a.mesInicio||"").localeCompare(b.mesInicio||""));
+  tb.innerHTML=rows.length?rows.map(p=>{const bad=p.mesInicio&&p.mesFim&&p.mesFim<p.mesInicio;
     if(bad)warn=`<div class="note warn"><b>Revise as datas:</b> em “${esc(p.descricao)}” o mês fim está antes do início.</div>`;
     const f=d=>{if(!d)return"";const[y,mo]=d.split("-");return `${mo}/${y}`;};
     const dot=p.pessoa==="Mariana"?"dot-mar":p.pessoa==="Gabriel"?"dot-gab":"dot-casa";
-    return `<tr><td><input type="checkbox" class="rowchk" data-id="${p.id}"${selParc.has(p.id)?' checked':''}></td><td><span class="owner-dot ${dot}"></span>${esc(p.pessoa||"Casa")}</td><td>${esc(p.descricao)}</td><td class="num money">${brl(p.valorTotal)}</td><td class="num money">${brl(parc)}</td><td class="num money">${p.qtdParcelas}</td><td>${esc(p.faltam)}</td><td class="hide-sm money">${f(p.mesInicio)}</td><td class="hide-sm money" ${bad?'style="color:var(--neg);font-weight:600"':''}>${f(p.mesFim)}</td><td class="num"><button class="rowbtn" data-ed="${p.id}">Editar</button><button class="rowbtn del" data-del="${p.id}">Excluir</button></td></tr>`;}).join(""):'<tr><td colspan="10" class="empty">Sem parcelamentos.</td></tr>';
-  $("parcTotal").textContent=brl(state.parcelamentos.reduce((a,p)=>a+(p.qtdParcelas?p.valorTotal/p.qtdParcelas:0),0));$("parcWarn").innerHTML=warn;
+    const quitado=p.restantes<=0;
+    return `<tr${quitado?' style="color:var(--muted)"':''}><td><input type="checkbox" class="rowchk" data-id="${p.id}"${selParc.has(p.id)?' checked':''}></td><td>${esc(p.descricao)}</td><td><span class="owner-dot ${dot}"></span>${esc(p.pessoa||"Casa")}</td><td>${esc(p.encargo)}</td><td class="num money">${brl(p.valorTotal)}</td><td class="num money">${brl(p.parc)}</td><td class="num money">${p.qtdParcelas}</td><td class="num money">${quitado?"Quitado":p.restantes}</td><td class="hide-sm money">${f(p.mesInicio)}</td><td class="hide-sm money" ${bad?'style="color:var(--neg);font-weight:600"':''}>${f(p.mesFim)}</td><td class="num"><button class="rowbtn" data-ed="${p.id}">Editar</button><button class="rowbtn del" data-del="${p.id}">Excluir</button></td></tr>`;}).join(""):'<tr><td colspan="11" class="empty">Sem parcelamentos.</td></tr>';
+  const preso=rows.reduce((a,p)=>a+p.parc*p.restantes,0),mensal=rows.reduce((a,p)=>a+(p.restantes>0?p.parc:0),0),ativos=rows.filter(p=>p.restantes>0).length;
+  $("parcStats").innerHTML=[["Total preso em parcelamentos",brl(preso),"gold"],["Parcela mensal em aberto",brl(mensal),"neg"],["Parcelamentos ativos",String(ativos),""]]
+    .map(([k,v,c])=>`<div class="stat"><div class="k">${k}</div><div class="v money ${c}">${v}</div></div>`).join("");
+  $("parcWarn").innerHTML=warn;
   tb.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(confirm("Excluir?"))delDB("parcelamentos",b.dataset.del);});
-  tb.querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>{const p=state.parcelamentos.find(x=>x.id===b.dataset.ed);pcEdit=p.id;pcDesc.value=p.descricao;pcPessoa.value=p.pessoa||"Casa";pcTot.value=p.valorTotal;pcQtd.value=p.qtdParcelas;pcFalta.value=p.faltam;pcIni.value=p.mesInicio||"";pcFim.value=p.mesFim||"";$("pcCancel").style.display="";$("pcAdd").textContent="Salvar";window.scrollTo({top:0,behavior:"smooth"});});
+  tb.querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>{const p=state.parcelamentos.find(x=>x.id===b.dataset.ed);pcEdit=p.id;pcDesc.value=p.descricao;pcPessoa.value=p.pessoa||"Casa";fillEncargoSelect($("pcEncargo"),false);pcEncargo.value=p.encargo||"";pcTot.value=p.valorTotal;pcQtd.value=p.qtdParcelas;pcIni.value=p.mesInicio||"";updatePcFimPreview();$("pcCancel").style.display="";$("pcAdd").textContent="Salvar";window.scrollTo({top:0,behavior:"smooth"});});
   tb.querySelectorAll(".rowchk").forEach(c=>c.onchange=()=>{c.checked?selParc.add(c.dataset.id):selParc.delete(c.dataset.id);bulkBtn("pcDelSel",selParc);});
-  const chkAllP=$("chkAllParc");const idsP=state.parcelamentos.map(p=>p.id);chkAllP.checked=idsP.length>0&&idsP.every(id=>selParc.has(id));
+  const chkAllP=$("chkAllParc");const idsP=rows.map(p=>p.id);chkAllP.checked=idsP.length>0&&idsP.every(id=>selParc.has(id));
   chkAllP.onchange=()=>{idsP.forEach(id=>chkAllP.checked?selParc.add(id):selParc.delete(id));renderParc();};
   bulkBtn("pcDelSel",selParc);}
+$("pcEncargoSel").onchange=renderParc;
 $("pcAdd").onclick=async()=>{if(!pcDesc.value.trim()){alert("Informe a descrição.");return;}
-  const o={descricao:pcDesc.value.trim(),pessoa:pcPessoa.value,valorTotal:parseFloat(pcTot.value)||0,qtdParcelas:parseInt(pcQtd.value)||0,faltam:pcFalta.value.trim(),mesInicio:pcIni.value||null,mesFim:pcFim.value||null};
+  const qtd=parseInt(pcQtd.value)||0;
+  const o={descricao:pcDesc.value.trim(),pessoa:pcPessoa.value,encargo:pcEncargo.value,valorTotal:parseFloat(pcTot.value)||0,qtdParcelas:qtd,mesInicio:pcIni.value||null,mesFim:mesFimCalc(pcIni.value,qtd)};
   if(pcEdit){await setDB("parcelamentos",pcEdit,o);pcEdit=null;}else await addDB("parcelamentos",o);
-  ["pcDesc","pcTot","pcQtd","pcFalta","pcIni","pcFim"].forEach(i=>$(i).value="");$("pcCancel").style.display="none";$("pcAdd").textContent="Adicionar";};
-$("pcCancel").onclick=()=>{pcEdit=null;["pcDesc","pcTot","pcQtd","pcFalta","pcIni","pcFim"].forEach(i=>$(i).value="");$("pcCancel").style.display="none";$("pcAdd").textContent="Adicionar";};
+  ["pcDesc","pcTot","pcQtd","pcIni","pcFim"].forEach(i=>$(i).value="");pcEncargo.value="";$("pcCancel").style.display="none";$("pcAdd").textContent="Adicionar";};
+$("pcCancel").onclick=()=>{pcEdit=null;["pcDesc","pcTot","pcQtd","pcIni","pcFim"].forEach(i=>$(i).value="");pcEncargo.value="";$("pcCancel").style.display="none";$("pcAdd").textContent="Adicionar";};
 let ivEdit=null;const valorFinal=x=>x.parcelas>0?x.valorUm*(x.quant||1)*x.parcelas:x.valorUm*(x.quant||1);const isPend=s=>s==="A Comprar"||s==="A investir";
 function renderInv(){const items=state.investimentos.map(x=>({...x,vf:valorFinal(x)}));
   const financ=items.filter(x=>/financ/i.test(x.item)).reduce((a,x)=>a+x.vf,0),total=items.reduce((a,x)=>a+x.vf,0);
